@@ -698,7 +698,7 @@
               </div>
 
               <div class="field">
-                <label for="firstName">Recipient name <span class="optional">required for personalized templates</span></label>
+                <label for="firstName">Recipient name <span class="required">*</span></label>
                 <input id="firstName" type="text" placeholder="Anna">
               </div>
 
@@ -1050,11 +1050,6 @@ Best regards,
       return { subject: template.subject, body: template.body };
     }
 
-    function templateUsesFirstName() {
-      const source = getRawEmailTemplate();
-      return /\{\{\s*firstName\s*\}\}/.test(`${source.subject}\n${source.body}`);
-    }
-
     function getRenderedEmail() {
       const source = getRawEmailTemplate();
 
@@ -1079,7 +1074,7 @@ Best regards,
       const recipients = parseRecipients(state.recipientEmails);
       if (!hasTemplates()) return false;
       if (!state.senderName.trim()) return false;
-      if (templateUsesFirstName() && !state.firstName.trim()) return false;
+      if (!state.firstName.trim()) return false;
       if (!state.company.trim()) return false;
       if (!recipients.length) return false;
       if (recipients.some(email => !isValidEmail(email))) return false;
@@ -1339,7 +1334,7 @@ Best regards,
       const recipients = parseRecipients(state.recipientEmails);
 
       if (!state.senderName.trim()) return "Enter your name.";
-      if (templateUsesFirstName() && !state.firstName.trim()) return "Enter the recipient name for this personalized template.";
+      if (!state.firstName.trim()) return "Enter the recipient name.";
       if (!state.company.trim()) return "Enter the company.";
       if (!recipients.length) return "Enter at least one recipient email.";
 
@@ -1408,11 +1403,7 @@ Best regards,
       saveState();
       updatePreview();
       setStatus("");
-      if (templateUsesFirstName()) {
-        el.firstName.focus();
-      } else {
-        el.recipientEmails.focus();
-      }
+      el.firstName.focus();
     }
 
     function bindInput(element, key) {
@@ -1610,7 +1601,7 @@ Best regards,
 
       const data = {
         app: "Basel Mail",
-        version: 5,
+        version: 4,
         exportedAt: new Date().toISOString(),
         templateOrder: getTemplateKeys(),
         templates: state.templates
