@@ -869,7 +869,29 @@ function buildOutlookWebUrl(recipients, subject, body) {
   );
 }
 
+function buildOutlookMobileUrl(recipients, subject, body) {
+  const to = (recipients || []).join(",");
+  const normalizedBody = String(body || "").replace(/\r?\n/g, "\r\n");
+  return (
+    "ms-outlook://compose" +
+    "?to=" +
+    encodeURIComponent(to) +
+    "&subject=" +
+    encodeURIComponent(subject || "") +
+    "&body=" +
+    encodeURIComponent(normalizedBody)
+  );
+}
+
 function launchOutlook(recipients, subject, body) {
+  if (isMobileDevice()) {
+    // Outlook's HTTPS compose link can be intercepted by the mobile app but lose
+    // the query parameters. Use Outlook's mobile URI scheme instead so To,
+    // Subject and Body are passed directly into the compose screen.
+    window.location.href = buildOutlookMobileUrl(recipients, subject, body);
+    return;
+  }
+
   const url = buildOutlookWebUrl(recipients, subject, body);
   const opened = window.open(url, "_blank");
   if (opened) {
